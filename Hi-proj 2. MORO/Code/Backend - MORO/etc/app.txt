@@ -1,0 +1,424 @@
+# app.py
+import os
+import re
+from dotenv import load_dotenv
+load_dotenv()   # .env 파일 자동 로드
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from openai import OpenAI
+
+from notion_publish import create_public_child_from_template, update_aside_block
+
+from pathlib import Path
+DATA_DIR = Path(__file__).parent / "data"
+TEMPLATE_MD = (DATA_DIR / "notion_template.md").read_text(encoding="utf-8")
+CSV_SCHEMA = (DATA_DIR / "itinerary_schema.csv").read_text(encoding="utf-8")
+
+# -------------------------
+# 데이터 락
+# -------------------------
+
+import threading
+_DB_LOCK = threading.Lock()
+
+def _db():
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS created_pages (
+      page_id TEXT PRIMARY KEY,
+      page_url TEXT,
+      created_ts INTEGER
+    )
+    """)
+    return conn
+
+def log_created_page(page_id: str, page_url: str):
+    with _DB_LOCK:
+        conn = _db()
+        conn.execute(
+            "REPLACE INTO created_pages (page_id, page_url, created_ts) VALUES (?,?,?)",
+            (page_id, page_url, int(time.time()))
+        )
+        conn.commit()
+        conn.close()
+
+def get_expired_pages() -> list[tuple[str, str]]:
+    cutoff = int(time.time()) - RETENTION_DAYS * 24 * 3600
+    with _DB_LOCK:
+        conn = _db()
+        rows = conn.execute(
+            "SELECT page_id, page_url FROM created_pages WHERE created_ts < ?",
+            (cutoff,)
+        ).fetchall()
+        conn.close()
+    return rows
+
+def remove_logged_pages(page_ids: list[str]):
+    if not page_ids:
+        return
+    with _DB_LOCK:
+        conn = _db()
+        q = "DELETE FROM created_pages WHERE page_id IN (%s)" % ",".join(["?"] * len(page_ids))
+        conn.execute(q, page_ids)
+        conn.commit()
+        conn.close()
+
+
+# -------------------------
+# 데이터 정리 유틸
+# -------------------------
+
+import sqlite3, time
+
+DB_PATH = os.getenv("CLEANUP_DB_PATH", "created_pages.db")
+RETENTION_DAYS = int(os.getenv("NOTION_RETENTION_DAYS", "14"))
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")  # /admin/cleanup 보호용 (선택)
+
+def _db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS created_pages (
+      page_id TEXT PRIMARY KEY,
+      page_url TEXT,
+      created_ts INTEGER
+    )
+    """)
+    return conn
+
+def log_created_page(page_id: str, page_url: str):
+    conn = _db()
+    conn.execute("REPLACE INTO created_pages (page_id, page_url, created_ts) VALUES (?,?,?)",
+                 (page_id, page_url, int(time.time())))
+    conn.commit()
+    conn.close()
+
+def get_expired_pages() -> list[tuple[str, str]]:
+    cutoff = int(time.time()) - RETENTION_DAYS * 24 * 3600
+    conn = _db()
+    rows = conn.execute("SELECT page_id, page_url FROM created_pages WHERE created_ts < ?", (cutoff,)).fetchall()
+    conn.close()
+    return rows
+
+def remove_logged_pages(page_ids: list[str]):
+    if not page_ids:
+        return
+    conn = _db()
+    q = "DELETE FROM created_pages WHERE page_id IN (%s)" % ",".join(["?"]*len(page_ids))
+    conn.execute(q, page_ids)
+    conn.commit()
+    conn.close()
+
+
+# --------------------------
+# 코드 시작
+# --------------------------
+
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",                 # 로컬 개발
+    "https://nainju.github.io",          # 사용자 페이지라면
+    "https://nainju.github.io/proj-MORO-web/",   # 프로젝트 페이지라면
+]
+
+def make_openai():
+    key = os.getenv("OPENAI_API_KEY")
+    if not key or not key.startswith("sk-"):
+        raise RuntimeError("OPENAI_API_KEY 누락/형식 오류")
+    return OpenAI(api_key=key, timeout=float(os.getenv("OPENAI_TIMEOUT", "20")), max_retries=int(os.getenv("OPENAI_RETRIES","2")))
+
+# client = make_openai()
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}},
+     supports_credentials=False,
+     methods=["GET","POST","OPTIONS"],
+     allow_headers=["Content-Type"])
+
+# 버전 관리용
+from datetime import datetime
+
+# 컨테이너 시작 시간
+START_TIME = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC") 
+
+APP_VERSION = os.getenv("GIT_SHA", "dev")
+BUILD_TIME = os.getenv("BUILD_TIME", "unknown")
+
+@app.get("/version")
+def version():
+    return jsonify(
+        ok=True,
+        version=os.getenv("GIT_SHA", "dev"),
+        build_time=os.getenv("BUILD_TIME", "unknown"),
+        start_time=START_TIME
+    )
+
+SYSTEM = """
+너는 여행 추천 챗봇이다. 기본 흐름은 다음 시나리오를 따른다.
+
+[대화 시작] → [취향 파악] → [여행지 추천] → [사용자 선택/보완] → [계획 작성] → [노션 사용 여부 확인] → 
+- (노션 사용) plan_text + travel_info(JSON) + csv_text 제공 → [save] 
+- (노션 미사용) plan_text만 제공 → [done]
+
+메타 힌트 형식(둘 중 하나):
+1) [NEXT: ask|confirm|recommend|pick|askPlan|plan|save|done]  OPTIONS: a | b
+   FILLED: key1,key2  MISSING: key3,key4  CONF: 0.00~1.00
+
+2) ```meta
+   next: ask|confirm|recommend|pick|askPlan|plan|save|done
+   options: ["옵션a","옵션b"]
+   filled:  ["style","companions"]
+   missing: ["dates","budget"]
+   confidence: 0.62
+```
+
+취향 슬롯 키:
+    style, region_like, region_avoid, companions, dates|days, budget, stay_style,
+    pace, must, avoid, liked, disliked, food_cafe, constraints
+
+규칙:
+	•	NEXT=ask: missing이 있으면 1~2개씩 질문(한 번에 다 묻지 말기).
+	•	사용자가 “맞아/확정”이면 recommend, “수정”이면 ask로 돌아가 보완 질문.
+	•	recommend: 후보 2~3개 간단 요약(장점 한 줄). 일정은 아직 X.
+	•	pick: 사용자가 후보 중 1개 고를 수 있게 유도(옵션 제시).
+	•	askPlan: “선택 여행지로 계획 짤까요?” 예/아니오.
+	•	plan: Day1/Day2 형식 드래프트(너무 세부 링크/가게 남발 X).
+	• 노션 사용 여부 확인(askPlan 과 동일 단계에서 간단 질문 가능).
+    • (노션 사용자가 ‘예’) save 단계에서 아래 3가지를 함께 제공:
+    1) plan_text (템플릿 본문에 붙일 마크다운)
+    2) travel_info(JSON) → {“start_date”:“YYYY-MM-DD”,“end_date”:“YYYY-MM-DD”,“from_airport”:“ICN”,“to_airport”:“HND”,“budget”:“500000”}
+    3) csv_text(선택) → csv ...  코드블록. 헤더/순서 고정, 쉼표 포함 시 큰따옴표.
+    • done: 링크/복제 안내 후 마무리.
+
+    응답 말풍선은 자연스럽고 따뜻하게. 맨 마지막엔 메타 힌트를 반드시 1줄로 덧붙여라.
+"""
+SYSTEM += f"""
+---
+[노션 템플릿 구조 (Markdown)]
+아래 마크다운은 사용자가 사용할 템플릿의 전체 구조 요약이다. 섹션/헤딩 순서를 바꾸지 말고, 내용만 채워라.
+
+```markdown
+{TEMPLATE_MD}
+[일정 CSV 스키마]
+아래 CSV는 일정 데이터베이스의 스키마(헤더+샘플)다. 헤더명/순서/구분자를 절대 바꾸지 말고 그대로 사용하라.
+
+{CSV_SCHEMA}
+[출력 형식(규약)]
+	• plan_text: 위 템플릿 구조를 따른 Markdown을 markdown 코드블록으로 출력
+	• travel_info: 아래 JSON 스키마를 json 코드블록으로 출력
+
+{{ "start_date":"YYYY-MM-DD","end_date":"YYYY-MM-DD","from_airport":"ICN","to_airport":"HND","budget":"500000" }}
+
+	• csv_text(선택): 일정 데이터를 위 CSV 스키마의 헤더 순서대로 csv 코드블록으로 출력
+(쉼표가 들어가는 값은 큰따옴표로 감싸라)
+출력은 본문 + 코드블록만. 불필요한 설명 문장은 넣지 말 것.
+"""
+
+
+FEWSHOT = [
+  {"role":"user","content":"안녕하세요"},
+  {"role":"assistant","content":"반가워요! 우선 여행 분위기부터 알려주세요.(예: 자연, 카페투어, 미니멀)\n\n[NEXT: ask] FILLED: MISSING: style CONF:0.10"},
+  {"role":"user","content":"카페투어 좋아해요. 친구랑 둘이요."},
+  {"role":"assistant","content":"좋아요! 여유로운 페이스가 좋을까요, 알차게 많이 둘러볼까요? 기간/예산도 대략 알려주시면 맞춤 추천이 쉬워요.\n\n[NEXT: ask] FILLED: style,companions MISSING:pace,days,budget CONF: 0.45"},
+]
+
+# --- meta stripper (server-side hardening) ---
+
+import re
+
+META_BLOCK_RE = re.compile(r"```meta[\s\S]*?```", re.IGNORECASE)
+BRACKET_LINE_RE = re.compile(r"\s*\[[^\]\n]*\b(NEXT|다음)\b[^\]\n]*\](?:[^\n]*)?", re.IGNORECASE)
+KEY_LINE_RE = re.compile(
+    r".*\b(NEXT|OPTIONS?|OPTION|FILLED|MISSING|CONF(?:IDENCE)?)\b\s*[:：].*"
+    r"|.*\b(다음|옵션|선택지|채움|부족|확신)\b\s*[:：].*",
+    re.IGNORECASE,
+)
+
+# -----------------------------
+# 메타텍스트 출력 없애기
+# -----------------------------
+
+def strip_meta_py(raw: str) -> str:
+    if not isinstance(raw, str):
+        return ""
+    t = (raw or "").replace("\r\n", "\n").replace("\u00A0", " ").replace("：", ":").replace("—", "-").replace("–", "-")
+    # 1) 코드블록 제거
+    t = re.sub(META_BLOCK_RE, "", t)
+    # 2) 대괄호 한 덩어리 제거
+    t = re.sub(BRACKET_LINE_RE, "", t)
+    # 3) 키워드 라인 제거
+    lines = []
+    for line in t.split("\n"):
+        if re.search(KEY_LINE_RE, line):
+            continue
+        lines.append(line)
+    t = "\n".join(lines)
+    # 4) 꼬리 컷
+    m = re.search(r"\n\s*(?:\[?\s*(NEXT|다음)\s*:|```meta)", t, flags=re.IGNORECASE)
+    if m:
+        t = t[:m.start()]
+    # 5) 정리
+    t = re.sub(r"[ \t]+\n", "\n", t)
+    t = re.sub(r"\n{3,}", "\n\n", t)
+    return t.strip()
+
+# -----------------------------
+# 페이지 Id 복원 유틸
+# -----------------------------
+
+def notion_url_to_page_id(url: str) -> str:
+    tail = url.rsplit("/", 1)[-1].split("?")[0]
+    if len(tail) >= 32:
+        raw = tail[-32:]
+        return f"{raw[:8]}-{raw[8:12]}-{raw[12:16]}-{raw[16:20]}-{raw[20:32]}"
+    return tail
+
+
+
+@app.get("/health")
+def health():
+    required = ["OPENAI_API_KEY", "NOTION_API_KEY", "NOTION_TEMPLATE_PAGE_ID", "NOTION_PARENT_ID"]
+    missing = [k for k in required if not os.getenv(k)]
+    return jsonify(ok=(len(missing)==0), missing=missing)
+
+@app.post("/chat")
+def chat():
+    try:
+        data = request.get_json(force=True) or {}
+        raw_messages = data.get("messages", [])
+
+        # 1) 메시지 형태 강제 정규화
+        messages = []
+        for m in raw_messages:
+            if not isinstance(m, dict):
+                continue
+            role = m.get("role")
+            content = m.get("content")
+            if role in {"system", "user", "assistant"} and isinstance(content, str):
+                messages.append({"role": role, "content": content})
+
+        # 2) 히스토리 길이 가드 (최근 16개만 유지: system/fewshot 제외)
+        MAX_TURNS = 16
+        user_assistant = [m for m in messages if m["role"] in {"user","assistant"}]
+        base = [{"role": "system", "content": SYSTEM}] + FEWSHOT
+        messages = base + user_assistant[-MAX_TURNS:]
+
+        # 3) OpenAI 클라이언트: 요청 시점에 생성(지연 초기화)
+        client = make_openai()
+
+        # 4) OpenAI 호출 (안정 옵션)
+        model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        resp = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=0.3,
+            top_p=0.9,
+            frequency_penalty=0.2,
+            max_tokens=900,
+        )
+        text = (resp.choices[0].message.content or "").strip()
+        visible = strip_meta_py(text)
+        return jsonify(ok=True, response=visible, meta=text)
+
+    except Exception as e:
+        # 서버 콘솔에 상세 로그
+        print("CHAT ERROR:", repr(e))
+        # 인증 오류/쿼터 오류는 사용자 친화적으로
+        msg = "챗봇 응답 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요."
+        try:
+            from openai import AuthenticationError, RateLimitError
+            if isinstance(e, AuthenticationError):
+                msg = "API 키 인증에 문제가 있습니다. 관리자에게 문의해 주세요."
+            elif isinstance(e, RateLimitError):
+                msg = "잠시 요청이 많습니다. 잠시 후 다시 시도해 주세요."
+        except Exception:
+            pass
+        return jsonify(ok=False, error=msg), 500
+    
+@app.post("/notion/create")
+def notion_create():
+    d = request.get_json(force=True) or {}
+    title = d.get("title") or d.get("selected_trip") or "여행 계획"
+    vars = {
+        "style": d.get("style",""),
+        "region": d.get("region",""),
+        "companions": d.get("companions",""),
+        "summary": d.get("summary",""),
+    }
+    itinerary = d.get("itinerary")
+    travel_info = d.get("travel_info")  # {"start_date": "...", ...}
+
+    try:
+        created = create_public_child_from_template(title, vars, itinerary)
+        page_id = created["page_id"]
+        page_url = created["page_url"]
+
+        # 첫 블록(aside) 업데이트 (있으면)
+        if travel_info:
+            try:
+                update_aside_block(page_id, travel_info)
+            except Exception as e:
+                print("ASIDE UPDATE WARN:", repr(e))
+
+        # ✅ 생성 기록 저장
+        log_created_page(page_id, page_url)
+
+        guide = (
+          "노션 페이지가 생성되었습니다.\n"
+          "1) 링크 열기 → 2) 우측 상단 'Duplicate'로 내 워크스페이스에 복제\n"
+          "3) (선택) 일정 CSV를 노션에서 '가져오기'로 불러오세요"
+        )
+        return jsonify(ok=True, page_url=page_url, guide=guide)
+    except Exception as e:
+        return jsonify(ok=False, error=str(e)), 500
+
+# -----------------------------
+# 클린업 함수
+# -----------------------------
+
+from notion_client import Client
+NOTION_API_KEY = os.getenv("NOTION_API_KEY")
+
+def cleanup_notion_pages() -> dict:
+    client = Client(auth=NOTION_API_KEY)
+    expired = get_expired_pages()
+    archived_ids = []
+    failed = []
+
+    for pid, _ in expired:
+        try:
+            client.pages.update(page_id=pid, archived=True)
+            archived_ids.append(pid)
+        except Exception as e:
+            print("ARCHIVE ERROR:", pid, repr(e))
+            failed.append(pid)
+
+    # 성공한 것만 DB에서 제거
+    remove_logged_pages(archived_ids)
+    return {"archived": archived_ids, "failed": failed, "count": len(archived_ids)}
+
+@app.post("/admin/cleanup")
+def admin_cleanup():
+    # 간단한 토큰 보호
+    if ADMIN_TOKEN and request.headers.get("X-Admin-Token") != ADMIN_TOKEN:
+        return jsonify(ok=False, error="unauthorized"), 401
+
+    result = cleanup_notion_pages()
+    return jsonify(ok=True, **result)
+
+
+# -----------------------------
+# 스케줄러 (자동 실행)
+# -----------------------------
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+
+if os.getenv("ENABLE_CLEANUP", "1") == "1":
+    sched = BackgroundScheduler(timezone="Asia/Seoul")
+    # 매일 03:30 실행
+    sched.add_job(lambda: print("[CLEANUP]", datetime.now(), cleanup_notion_pages()),
+                  "cron", hour=3, minute=30)
+    sched.start()
+
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", "8080"))
+    app.run(host="0.0.0.0", port=port, debug=False)

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sajo</title>
+    <!-- Style Sheet -->
+     <link rel="stylesheet" href="./reset.css">
+     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"> -->
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+     <link rel="stylesheet" href="./main.css">
+
+    <!-- Java Script -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+    <script src="main.js" defer></script>
+
+</head>
+<body>
+    <div id="wrap" class="main">
+        <div id="header">
+            <div class="container">
+                <!-- 좌측 로고 -->
+                <h1><a href=""><span class="blind">사조그룹</span></a></h1>
+                <!-- 데스크탑용 GNB -->
+                <nav id="gnb">
+                    <ul class="dep1">
+                        <li>
+                            <a href="https://www.sajo.co.kr/group/introduce.asp?gi=1">그룹소개</a>
+                            <ul class="dep2">
+                                <li><a href="#">사조소개</a></li>
+                                <li><a href="#">CEO 소개</a></li>
+                                <li><a href="#">사조역사관</a></li>
+                                <li><a href="#">그룹비전</a></li>
+                                <li><a href="#">경영철학</a></li>
+                                <li><a href="#">윤리경영</a></li>
+                                <li><a href="#">계열사 안내</a></li>
+                                <li><a href="#">CI</a></li>
+                                <li><a href="#">오시는 길</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.sajo.co.kr/product/brandInfo.asp">브랜드안내</a>
+                            <ul class="dep2">
+                                <li><a href="#">브랜드 소개</a></li>
+                                <li><a href="#">사조 레시피</a></li>
+                                <li><a href="#">식품안전</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.sajo.co.kr/investment/administrationResult.asp?gi=1">투자정보</a>
+                            <ul class="dep2">
+                                <li><a href="#">경영실적</a></li>
+                                <li><a href="#">공시정보</a></li>
+                                <li><a href="#">공지사항</a></li>
+                                <li><a href="#">공시정보관리규정</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="https://www.sajo.co.kr/prcenter/sajostoryList.asp?gi=1">홍보센터</a>
+                            <ul class="dep2">
+                                <li><a href="#">사조뉴스</a></li>
+                                <li><a href="#">이벤트</a></li>
+                                <li><a href="#">사회공헌</a></li>
+                                <li><a href="#">사조TV</a></li>
+                                <li><a href="#">소셜미디어</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="https://recruit.sajo.co.kr/">인재채용</a></li>
+                        <li><a href="https://membership.sajo.co.kr/customer/online_name_verification1.asp?returnUrl=online_inconvenience.asp">고객센터</a></li>
+                    </ul>
+                </nav>
+                <div class="header-right">
+                    <!-- 우측 lang-wrap -->
+                    <div class="lang-wrap">
+                        <button class="lang-toggle">KOR
+                            <i class="ri-arrow-down-s-fill"></i>
+                        </button>
+                        <ul class="lang-list">
+                            <li><a href="#">KOR</a></li>
+                            <li><a href="#">ENG</a></li>
+                        </ul>
+                    </div>
+                    <!-- 모바일용 햄버거 버튼 -->
+                    <button class="gnb-toggle" aria-label="모바일 메뉴 열기">☰</button>
+                </div>
+                <!-- 오프캔버스 오버레이 -->
+                <div class="gnb-overlay"></div>
+                <!-- 모바일용 GNB 슬라이드 메뉴 -->
+                <nav class="gnb-slide">
+                    <button class="gnb-close" aria-label="모바일 메뉴 닫기">✕</button>
+                    <ul class="dep1">
+                        <li>
+                            <a href="#">그룹소개</a>
+                            <ul class="dep2">
+                                <li><a href="#">사조소개</a></li>
+                                <li><a href="#">CEO 소개</a></li>
+                                <li><a href="#">사조역사관</a></li>
+                                <li><a href="#">그룹비전</a></li>
+                                <li><a href="#">경영철학</a></li>
+                                <li><a href="#">윤리경영</a></li>
+                                <li><a href="#">계열사 안내</a></li>
+                                <li><a href="#">CI</a></li>
+                                <li><a href="#">오시는 길</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">브랜드안내</a>
+                            <ul class="dep2">
+                                <li><a href="#">브랜드 소개</a></li>
+                                <li><a href="#">사조 레시피</a></li>
+                                <li><a href="#">식품안전</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">투자정보</a>
+                            <ul class="dep2">
+                                <li><a href="#">경영실적</a></li>
+                                <li><a href="#">공시정보</a></li>
+                                <li><a href="#">공지사항</a></li>
+                                <li><a href="#">공시정보관리규정</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#">홍보센터</a>
+                            <ul class="dep2">
+                                <li><a href="#">사조뉴스</a></li>
+                                <li><a href="#">이벤트</a></li>
+                                <li><a href="#">사회공헌</a></li>
+                                <li><a href="#">사조TV</a></li>
+                                <li><a href="#">소셜미디어</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">인재채용</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <main id="main">
+            <!-- 전체 래퍼 -->
+            <!-- 수정된 메인비주얼 HTML: 컨테이너 1단계 제거 및 slide-card 전체 배경화면화 -->
+            <div id="main-visual-wrap">
+                <div class="main-visual-inner swiper mainSwiper">
+                    <div class="swiper-wrapper">
+                        <!-- 슬라이드 1 -->
+                        <div class="swiper-slide" data-index="0" >
+                            <a href="https://sajomall.co.kr/" target="_blank" class="slide-card" style="background-image: url('./img/main_visual/mainvisual_1_sajomall.png')">
+                                <div class="slide-text">
+                                    <strong>사조몰</strong>
+                                    <p>안심하고 믿을 수 있는 사조의 맛있는 먹거리</p>
+                                </div>
+                                <div class="card-overlay">
+                                    <span class="cta-text">click <i class="ri-cursor-fill"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- 슬라이드 2 -->
+                        <div class="swiper-slide" data-index="1" >
+                            <a href="https://sajosfmall.co.kr/" target="_blank" class="slide-card" style="background-image: url('./img/main_visual/mainvisual_2_sajosasimimall.png')">
+                                <div class="slide-text">
+                                    <strong>사조회참치</strong>
+                                    <p>50년 역사, 사조가 전하는 씨푸드</p>
+                                </div>
+                                <div class="card-overlay">
+                                    <span class="cta-text">click <i class="ri-cursor-fill"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- 슬라이드 3 -->
+                        <div class="swiper-slide" data-index="2" >
+                            <a href="https://smartstore.naver.com/sajoiksan" target="_blank" class="slide-card" style="background-image: url('./img/main_visual/mainvisual_3_sajogim.png')">
+                                <div class="slide-text">
+                                    <strong>사조김</strong>
+                                    <p>엄선된 좋은 원초, 바다에서 식탁까지</p>
+                                </div>
+                                <div class="card-overlay">
+                                    <span class="cta-text">click <i class="ri-cursor-fill"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- 슬라이드 4 -->
+                        <div class="swiper-slide" data-index="3" >
+                            <a href="https://brand.naver.com/sajopet" target="_blank" class="slide-card" style="background-image: url('./img/main_visual/mainvisual_4_sajopet.png')">
+                                <div class="slide-text">
+                                    <strong>사조펫</strong>
+                                    <p>반려동물의 건강한 삶<br>사조펫과 함께하세요</p>
+                                </div>
+                                <div class="card-overlay">
+                                    <span class="cta-text">click <i class="ri-cursor-fill"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                        <!-- 슬라이드 5 -->
+                        <div class="swiper-slide" data-index="4" >
+                            <a href="https://vo.la/qEHSgt" target="_blank" class="slide-card" style="background-image: url('./img/main_visual/mainvisual_5_sikjajaemall.png')">
+                                <div class="slide-text">
+                                    <strong>식자재왕몰</strong>
+                                    <p>식자재가 필요할 땐 식자재 전문몰, 식자재왕마트</p>
+                                </div>
+                                <div class="card-overlay">
+                                    <span class="cta-text">click <i class="ri-cursor-fill"></i></span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- 내비게이션 -->
+                    <div class="swiper-navigation-wrap">
+                        <button class="swiper-prev" data-preview="">‹</button>
+                        <button class="swiper-next" data-preview="">›</button>
+                    </div>
+                </div>
+                 <!-- 페이지네이션 & 버튼 -->
+                <div class="main-visual-buttons">
+                    <button class="goto-site-btn" data-index="0" data-url="https://sajomall.co.kr/">
+                    사조몰 <i class="ri-external-link-line" aria-hidden="true"></i>
+                    </button>
+                    <button class="goto-site-btn" data-index="1" data-url="https://sajosfmall.co.kr/">
+                    사조회참치 <i class="ri-external-link-line" aria-hidden="true"></i>
+                    </button>
+                    <button class="goto-site-btn" data-index="2" data-url="https://smartstore.naver.com/sajoiksan">
+                    사조김 <i class="ri-external-link-line" aria-hidden="true"></i>
+                    </button>
+                    <button class="goto-site-btn" data-index="3" data-url="https://brand.naver.com/sajopet">
+                    사조펫 <i class="ri-external-link-line" aria-hidden="true"></i>
+                    </button>
+                    <button class="goto-site-btn" data-index="4" data-url="https://vo.la/qEHSgt">
+                    식자재왕몰 <i class="ri-external-link-line" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div> 
+            <!--기업소개 -->
+            <section class="sajo-scroll-section">
+                <div class="sajo-sticky">
+                    <div class="sajo-can">
+                        <img src="./img/products/grid_visual/sajotuna_can_product_1000002397_detail_078.png" alt="사조참치">
+                    </div>
+                    <div class="sajo-logo">SAJO</div>
+                    <div class="sajo-description">언제 어디서나 고객이 안심하고 <span class="mobile-br"><br></span>선택할 수 있는 기업, 사조입니다</div>
+                    <div class="keyword-panel" style="color: var(--main-navy);"><strong>CHALLENGE<br></strong><span>미래를 향한 끊임없는 도전</span></div>
+                    <div class="keyword-panel" style="color:var(--main-green);"><strong>CONFIDENCE<br></strong><span>고객에게 믿음을 파는 기업</span></div>
+                    <div class="keyword-panel" style="color: var(--main-red);"><strong>PASSION<br></strong><span>최고의 맛을 창조하는 뜨거운 열정</span></div>
+                </div>
+            </section>
+            <!-- 브랜드 소개 -->
+            <section class="brand-info">
+                <div class="container">
+                    <h2 class="sec-title">브랜드</h2>
+                    <!-- 상단 스와이퍼 -->
+                    <div class="brand-swiper top">
+                        <div class="swiper brand-swiper">
+                            <div class="swiper-wrapper">
+                            <!-- 첫 번째 절반 슬라이드 -->
+                                <div class="swiper-slide"><a href="https://dr.sajo.co.kr/"><span class="blind">대림선어묵</span><img src="./img/logo/daelilmsunfishcake_logo.png" alt="대림선어묵 로고"></a></div>
+                                <div class="swiper-slide"><a href=""><span class="blind">사조참치</span><img src="./img/logo/sajotuna_logo.png" alt="사조참치 로고"></a></div>
+                                <div class="swiper-slide"><a href=""><span class="blind">해표</span><img src="/img/logo/haepyo_namuwiki.svg" alt="해표 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://sf.sajo.co.kr/"><span class="blind">사조회참치</span><img src="./img/logo/sajotunasasimi_logo.png" alt="사조회 참치 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://sajomall.co.kr/goods/event_sale.php?sno=312"><span class="blind">대림선만두</span><img src="./img/logo/daelimsun-green-logo.jpg" alt="대림선 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://won.sajo.co.kr/"><span class="blind">진품육</span><img src="./img/logo/jinpoomyook_logo.png" alt="진품육 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://oy.sajo.co.kr/"><span class="blind">오양</span><img src="./img/logo/oyang_logo.png" alt="오양 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://do.sajo.co.kr/"><span class="blind">맥선</span><img src="./img/logo/macksun_logo.png" alt="맥선 로고"></a></div>
+                                <div class="swiper-slide"><a href="http://ewangmart.com/"><span class="blind">식자재왕</span><img src="./img/logo/sikjajaewang_logo.png" alt="식사재왕 로고"></a></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 하단 스와이퍼 (반대방향 클래스 추가 필요) -->
+                    <div class="brand-swiper bottom">
+                        <div class="swiper brand-swiper reverse">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><a href="https://www.sajomall.co.kr/goods/goods_list.php?cateCd=008"><span class="blind">옵티원</span><img src="./img/logo/optione_logo.png" alt=""></a></div>
+                                <div class="swiper-slide"><a href=""><span class="blind">러브잇</span><img src="./img/logo/loveat_logo_2.png" alt="러브잇 로고"></a></div>
+                                <div class="swiper-slide"><a href=""><span class="blind">캣푸드</span><img src="./img/logo/catfood_logo.png" alt="캣푸드 로고"></a></div>
+                                <div class="swiper-slide"><a href=""><span class="blind">투펫</span><img src="./img/logo/topet_logo.png" alt="투펫 로고"></a></div>
+                                <div class="swiper-slide"><a href=""><span class="blind">페씨아</span><img src="./img/logo/pessia_logo.png" alt="페씨아 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://www.castlexseoul.com/"><span class="blind">캐슬렉스 서울</span><img src="./img/logo/castlex_seoul_logo.png" alt="캐슬렉스 서울 로고"></a></div>
+                                <div class="swiper-slide"><a href="http://www.castlex-iseongdae.com/"><span class="blind">캐슬렉스 이성대</span><img src="./img/logo/castlex_isungdae_logo.png" alt="캐슬렉스 이성대 로고"></a></div>
+                                <div class="swiper-slide"><a href="https://www.castlexjj.com/"><span class="blind">캐슬렉스 제주</span><img src="./img/logo/castlex_jeju_logo.png" alt="캐슬렉스 제주 로고"></a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- 제품 소개 -->
+            <section class="product-info">
+                <div class="container">
+                    <div class="product-section">
+                        <!-- 왼쪽 이미지 슬라이드 -->
+                        <div class="swiper left-swiper">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="./img/products/pd_bg/sajo_tuna_product_bg.png"/></div>
+                                <div class="swiper-slide"><img src="./img/products/pd_bg/sajo_gim_product_bg.jpg"/></div>
+                                <div class="swiper-slide"><img src="./img/products/pd_bg/sajo_royalcrab_product_bg.png"/></div>
+                                <div class="swiper-slide"><img src="./img/products/pd_bg/sajo_mandoo_product_bg.jpg"/></div>
+                                <div class="swiper-slide"><img src="./img/products/pd_bg/sajo_tunasasimi_product_bg.jpg"/></div>
+                            </div>
+                            <div class="swiper-pagination"></div>
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        </div>
+                        <!-- 오른쪽 텍스트 + 이미지 그리드 -->
+                        <div class="swiper right-swiper">
+                            <div class="swiper-wrapper">
+                            <!-- 슬라이드 1 -->
+                                <div class="swiper-slide">
+                                    <div class="prod-grid">
+                                        <div class="prod-text">
+                                            <strong>사조참치</strong>
+                                            <p>페이지에 대한 설명을 써주세요</p>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/sajotuna_can_product_1000002397_detail_078.png" alt="사조참치">
+                                            <div class="prod-overlay">사조참치 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/bluetuna_can_product_1000002399_detail_054.png" alt="마일드참치">
+                                            <div class="prod-overlay">마일드참치 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/redtuna_can_product_1000002400_detail_012.png" alt="고추참치">
+                                            <div class="prod-overlay">고추참치 상세 설명</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 슬라이드 2 -->
+                                <div class="swiper-slide">
+                                    <div class="prod-grid">
+                                        <div class="prod-text">
+                                            <strong>해표</strong>
+                                            <p>페이지에 대한 설명을 써주세요</p>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/basakdolgim_prod_thumb.png" alt="바삭돌김">
+                                            <div class="prod-overlay">사조바삭돌김 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/chamgirumgim_prod_thumb.png" alt="참기름김">
+                                            <div class="prod-overlay">참기름김 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/thegosohanparaegim_prod_thumb.png" alt="파래김" style="width: 100%;">
+                                            <div class="prod-overlay">파래김 상세 설명</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 슬라이드 3 -->
+                                <div class="swiper-slide">
+                                    <div class="prod-grid">
+                                        <div class="prod-text">
+                                            <strong>대림선 맛살</strong>
+                                            <p>페이지에 대한 설명을 써주세요</p>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/crabia_prod_thumb.png" alt="크라비아" style="width: 90%;">
+                                            <div class="prod-overlay">크라비아 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/royalcrab_prod_thumb.png" alt="로얄크랩" style="width: 95%;">
+                                            <div class="prod-overlay">로얄크랩 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/oyangmatsal_prod_thumb.png" alt="오양맛살">
+                                            <div class="prod-overlay">오양맛살 상세 설명</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 슬라이드 4 -->
+                                <div class="swiper-slide">
+                                    <div class="prod-grid">
+                                        <div class="prod-text">
+                                            <strong>대림선 만두</strong>
+                                            <p>페이지에 대한 설명을 써주세요</p>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/gogisonmandu_prod_thumb.png" alt="고기손만두">
+                                            <div class="prod-overlay">고기손만두 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/gimchisonmandu_prod_thumb.png" alt="김치손만두">
+                                            <div class="prod-overlay">김치손만두 상세 설명</div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/gogiwanggyoja_prod_thumb.png" alt="고기왕교자">
+                                            <div class="prod-overlay">고기왕교자 상세 설명</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 슬라이드 5 -->
+                                 <div class="swiper-slide">
+                                    <div class="prod-grid">
+                                        <div class="prod-text">
+                                            <strong>사조회참치</strong>
+                                            <p>페이지에 대한 설명을 써주세요</p>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/sajotunasasimi_detail01.jpg" alt="눈다랑어 속살스테이크">
+                                            <div class="prod-overlay">
+                                                <strong class="prod-name">눈다랑어 속살스테이크</strong>
+                                                <p class="prod-desc">다랑어 중 눈이 유난히 큰 눈다랑어의 속살은<br>
+                                                    마블링이 없어 부드러운 식감에 지방질이 적어<br>
+                                                    담백한 풍미가 가득 담겨있는 부위
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/sajotunasasimi_detail02.jpg" alt="눈다랑어 대뱃살">
+                                            <div class="prod-overlay">
+                                                <strong class="prod-name">눈다랑어 대뱃살</strong>
+                                                <p class="prod-desc">다랑어 중 눈이 유난히 큰 눈다랑어의 뱃살은<br>
+                                                    탐스러운 선홍빛을 띄며 하얀 마블링도 풍부해<br>
+                                                    쫄깃한 식감과 고소함이 가득한 가성비가 뛰어난 부위
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="prod-img">
+                                            <img src="./img/products/grid_visual/sajotunasasimi-detail03.jpg" alt="참다랑어 배꼽살">
+                                            <div class="prod-overlay">
+                                                <strong class="prod-name">참다랑어 배꼽살</strong>
+                                                <p class="prod-desc">배꼽 모양과 닮아 배꼽살이라 부르며<br>
+                                                    풍부한 마블링으로 고소하고<br>
+                                                    오독오독 씹히는 식감이 일품인 고급부위
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ✅ 모바일용 내비게이션 추가 -->
+                            <div class="mobile-swiper-controls">
+                                <div class="swiper-button-prev mobile-button-prev"></div>
+                                <div class="swiper-button-next mobile-button-next"></div>
+                                <div class="swiper-pagination mobile-pagination"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- 재무 정보 -->
+            <section class="financial-section">
+                <h2 class="financial-title sec-title">주요 재무 지표</h2>
+                <div class="bg-container">
+                    <div class="financial-grid">
+                        <div class="financial-item">
+                            <div class="financial-label">매출액</div>
+                            <div class="financial-number" id="revenue">0</div>
+                            <div class="financial-note">전년 대비 +5,003억 증가</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">영업이익</div>
+                            <div class="financial-number" id="profit">0</div>
+                            <div class="financial-note">전년 대비 감소</div>
+                        </div>
+                        <div class="financial-item">
+                            <div class="financial-label">총자산</div>
+                            <div class="financial-number" id="asset">0</div>
+                            <div class="financial-note">전년 대비 +2,804억 증가</div>
+                        </div>
+                    </div>
+                    <div class="grid-bg">
+                        <img src="./img/fisherman_cassiano-psomas-C6aNNakl7ok-unsplash.jpg" alt="">
+                    </div>
+                </div class="bg-container">
+            </section>
+            <!-- 뉴스 -->
+            <section class="news-wrap">
+                <div class="container">
+                    <div class="news-header">
+                        <h2 class="sec-title">뉴스</h2>
+                        <a href="#" class="more-link">더보기</a>
+                    </div>
+                    <div class="cont-box">
+                        <ul class="news-list">
+                            <li>
+                                <a href="https://www.sajo.co.kr/prcenter/sajostoryView.asp?gi=2&idx=3044&board_group_idx=3&searchItem=&searchKeyword=&searchItemCategory=&searchItemProcess=&searchItemStartDate=&searchItemEndDate=&searchMakeYearBegin=&searchMakeYearEnd=&event_search_begin_year=&event_search_begin_month=&event_search_end_year=&event_search_end_month=&searchItemIsView=&SearchStatus=&page=1">
+                                    <div class="thumb-img">
+                                        <img src="./img/news/news1_checking_0186.jpg" alt="안전 점검 현장">
+                                    </div>
+                                    <div class="news-txt">
+                                        <span class="news-cate">푸디스트</span>
+                                        <strong class="news-title">장마철 대비 전 사업장 안전 점검 실시</strong>
+                                        <p>
+                                            식자재 전문기업 푸디스트가 장마철 집중호우와 강풍으로 인한 안전사고를 예방하기 위해 특별 점검을 실시했다고 18일 밝혔다.이번 점검은 전국 급식 사업장, 물류센터, 직영 마트 등 모든 사업장을 대상으로 진행됐다. 회사 측은 침수 위험지역, 붕괴 우려 구간, 누수 가능성 등 현장별 위험 요소를 점검하고 현장 근로자들의 의견을 수렴해 실질적인 안전대책을 마련했다고 설명했다.
+                                        </p>
+                                        <span class="date">2025.06.18.</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.sajo.co.kr/prcenter/sajostoryView.asp?gi=2&idx=3011&board_group_idx=3&searchItem=&searchKeyword=&searchItemCategory=&searchItemProcess=&searchItemStartDate=&searchItemEndDate=&searchMakeYearBegin=&searchMakeYearEnd=&event_search_begin_year=&event_search_begin_month=&event_search_end_year=&event_search_end_month=&searchItemIsView=&SearchStatus=&page=1">
+                                    <div class="thumb-img">
+                                        <img src="./img/news/news2_restaurant.jpg" alt="콜라보 브랜드와 구내식당 식판">
+                                    </div>
+                                    <div class="news-txt">
+                                        <span class="news-cate">푸디스트</span>
+                                        <strong class="news-title">“구내식당이 가성비 맛집”…상반기 위탁급식 식수 25% 증가</strong>
+                                        <p>
+                                            푸디스트는 올 상반기에 다양한 외식 유명 브랜드와 협업을 통해 급식의 외식화를 주도하면서 위탁급식 사업장의 식수 인원과 직장인들의 만족도를 동시에 높였다고 12일 밝혔다.푸디스트에 따르면 올 상반기 브랜드 콜라보 메뉴를 제공한 날에는 위탁급식 사업장의 식수 인원이 평소보다 25% 증가했으며, 고객만족도 역시 매우 높게 나타난 것으로 분석됐다.
+                                        </p>
+                                        <span class="date">2025.06.18.</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.sajo.co.kr/prcenter/sajostoryView.asp?gi=2&idx=3010&board_group_idx=3&searchItem=&searchKeyword=&searchItemCategory=&searchItemProcess=&searchItemStartDate=&searchItemEndDate=&searchMakeYearBegin=&searchMakeYearEnd=&event_search_begin_year=&event_search_begin_month=&event_search_end_year=&event_search_end_month=&searchItemIsView=&SearchStatus=&page=1">
+                                    <div class="thumb-img">
+                                        <img src="./img/news/news3_dumpling_dr020sfs031.jpg" alt="통오징어 만두와 통비프 포테이토 만두">
+                                    </div>
+                                    <div class="news-txt">
+                                        <span class="news-cate">사조대림</span>
+                                        <strong class="news-title">이색 원물 만두 2종 출시… “통째로 넣었다”</strong>
+                                        <p>
+                                            사조대림이 트렌디한 원재료를 통째로 넣어 식감과 재미를 더한 이색 만두 신제품 ‘통오징어 만두’와 ‘통비프 포테이토 만두’를 출시했다고 2일 밝혔다.이번 신제품은 특색 있는 만두소에 통오징어나 길게 썬 감자 등 원물을 그대로 첨가한 전병 스타일의 만두로 기존 제품과는 차별화된 레시피와 비주얼이 특징이다.‘통오징어 만두’는 백짬뽕 스타일의 해물 만두소 위에 통으로 썬 오징어 몸통을 그대로 올린 제품이다. 돼지고기, 숙주, 오징어 다이스 등으로 구성한 만두소에 불향을 더해 짬뽕 특유의 얼큰한 맛을 살렸으며, 여기에 오징어 몸통을 더해 쫄깃하고 풍성한 식감을 완성했다.
+                                        </p>
+                                        <span class="date">2025.06.18.</span>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <section id="ESG" class="esg-section">
+                <div class="container">
+                    <hgroup class="esg-head">
+                        <h2 class="esg-title sec-title">지속가능경영 ESG</h2>
+                        <p class="esg-desc">
+                            사조그룹은 환경 보호, 사회적 책임, 윤리적 지배구조를 통해
+                            지속가능한 미래를 만들어갑니다.
+                        </p>
+                    </hgroup>
+
+                    <div class="esg-card-wrapper">
+                        <!-- 환경 -->
+                        <div class="esg-card" style="background-image: url('./img/ESG/Environment-markus-spiske-GnxktpZHjcM-unsplash.jpg');">
+                            <div class="content">
+                                <h3>E – 환경(Environment)</h3>
+                                <p>친환경 제품 개발과 탄소 배출 저감을 통해 지속 가능한 지구를 위한 노력을 실천하고 있습니다.</p>
+                                <a href="#" class="esg-link">자세히 보기 →</a>
+                            </div>
+                        </div>
+
+                        <!-- 사회 -->
+                        <div class="esg-card" style="background-image: url('./img/ESG/Social-shane-rounce-DNkoNXQti3c-unsplash.jpg');">
+                            <div class="content">
+                                <h3>S – 사회(Social)</h3>
+                                <p>협력사, 고객, 지역사회를 위한 사회적 책임을 다하며, 모두가 함께 성장하는 환경을 조성합니다.</p>
+                                <a href="#" class="esg-link">자세히 보기 →</a>
+                            </div>
+                        </div>
+
+                        <!-- 지배구조 -->
+                        <div class="esg-card" style="background-image: url('./img/ESG/Governance-khampha-phimmachak-IRUcIOMOiEI-unsplash.jpg');">
+                            <div class="content">
+                                <h3>G – 지배구조(Governance)</h3>
+                                <p>투명한 경영과 윤리적 의사결정을 통해 신뢰받는 기업문화를 만들어가고 있습니다.</p>
+                                <a href="#" class="esg-link">자세히 보기 →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer id="footer">
+            <div class="container">
+                <div class="footer-links">
+                    <div class="footer-tel">
+                        <div class="tel1">
+                            <h2>소비자 상담전화</h2>
+                            <p>
+                                평일 09:00~17:00 운영<br>
+                                점심시간 12:00~13:00<br>
+                                토,일,공휴일 휴무
+                            </p>
+                        </div>
+                        <button class="contact-view">연락처 보기</button>
+                        <div class="contact-list">
+                            <strong>사조그룹 소비자 상담전화</strong>
+                            <button class="contact-close">
+                                <i class="ri-close-line"></i>
+                                <span class="blind">연락처 닫기</span>
+                            </button>
+
+                            <!-- 연락처 컬럼 -->
+                            <div class="contact-cols">
+                                <!-- 1컬럼 -->
+                                <div class="contact-col">
+                                <ul>
+                                    <li><strong>사조대림</strong><p>080-900-6133</p></li>
+                                    <li><strong>사조오양</strong><p>080-015-3434</p></li>
+                                    <li><strong>사조산업</strong><p>080-008-8700</p></li>
+                                    <li><strong>사조씨푸드</strong><p>080-4681-6516</p></li>
+                                </ul>
+                                </div>
+                                <!-- 2컬럼 -->
+                                <div class="contact-col">
+                                <ul>
+                                    <li>
+                                    <strong>사조동아원</strong>
+                                    <p>제분BU 문의<br>080-370-3377</p>
+                                    <p>생물자원사료 문의<br>041-350-6300</p>
+                                    <p>반려동물사료 문의<br>02-789-9677</p>
+                                    </li>
+                                </ul>
+                                </div>
+                                <!-- 3컬럼 -->
+                                <div class="contact-col">
+                                <ul>
+                                    <li><strong>사조원</strong><p>063-770-3000</p></li>
+                                    <li><strong>푸디스트</strong><p>02-1811-9696</p></li>
+                                    <li><strong>사조CPK</strong><p>1566-7847</p></li>
+                                    <li><strong>홈페이지장애 문의</strong><p>02-3149-5747</p></li>
+                                </ul>
+                                </div>
+                            </div>
+
+                            <!-- 안내 문구 위치를 컬럼 아래로 이동 -->
+                            <p class="contact-note">
+                                ※회사별 대표 연락처 및 위치 안내
+                                <a href="https://www.sajo.co.kr/group/map.asp" target="_blank">바로가기</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="family-link">
+                            <div class="family-site">
+                                <button class="toggle-family">FAMILY SITES</button>
+                                <div class="family-list">
+                                    <button class="family-close">
+                                        <i class="ri-close-line"></i>
+                                        <span class="blind">패밀리 사이트 닫기</span>
+                                    </button>
+                                    <ul>
+                                        <li><a href="#" target="_blank">사조그룹</a></li>
+                                        <li><a href="#" target="_blank">사조산업</a></li>
+                                        <li><a href="#" target="_blank">사조씨푸드</a></li>
+                                        <li><a href="#" target="_blank">삼아벤처</a></li>
+                                        <li><a href="#" target="_blank">사조원</a></li>
+                                        <li><a href="#" target="_blank">사조축산부문</a></li>
+                                    
+                                        <li><a href="#" target="_blank">사조대림</a></li>
+                                        <li><a href="#" target="_blank">사조오양</a></li>
+                                        <li><a href="#" target="_blank">사조동아원</a></li>
+                                        <li><a href="#" target="_blank">사조 CPK</a></li>
+                                        <li><a href="#" target="_blank">사조 C&C</a></li>
+                                        <li><a href="#" target="_blank">푸디스트</a></li>
+                                    
+                                        <li><a href="#" target="_blank">사조시스템즈</a></li>
+                                        <li><a href="#" target="_blank">사조몰</a></li>
+                                        <li><a href="#" target="_blank">사조회참치몰</a></li>
+                                        <li><a href="#" target="_blank">사조김스토어</a></li>
+                                        <li><a href="#" target="_blank">사조펫스토어</a></li>
+                                        <li><a href="#" target="_blank">식자재왕몰</a></li>
+                                    
+                                        <li><a href="#" target="_blank">사조인재채용</a></li>
+                                        <li><a href="#" target="_blank">캐슬렉스 서울</a></li>
+                                        <li><a href="#" target="_blank">캐슬렉스 이성대</a></li>
+                                        <li><a href="#" target="_blank">캐슬렉스 제주</a></li>
+                                        <li><a href="#" target="_blank">사조희망나눔재단</a></li>
+                                        <li><a href="#" target="_blank">취암장학재단</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer-menu">
+                            <a href="https://www.sajo.co.kr/brand/personalInfo.asp" target="_blank">개인정보취급방침</a>
+                            <a href="https://www.sajo.co.kr/brand/emailRefusal.asp" target="_blank">이메일 무단수집거부</a>
+                            <a href="https://www.sajo.co.kr/group/ethicsManagement.asp?gi=6" target="_blank">온라인신문고</a>
+                        </div>
+                        <div class="corp-info">
+                            <p class="copyright" style="border: 1px solid rgb(255, 255, 255);">&copy; SAJO.All Rights Reserved.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div> 
+</body>
+</html>
